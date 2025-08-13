@@ -17,7 +17,6 @@ import java.util.function.Predicate;
  */
 public class AnagramGenerator {
 
-
   /**
    * Generates all unique permutations (anagrams) of the given set of characters. The set must
    * contain only valid alphabetical characters and cannot be empty or null.
@@ -53,7 +52,6 @@ public class AnagramGenerator {
     final List<String> combinations = generatePermutations(chars);
     return combinations.toArray(new String[0]);
   }
-
 
   /**
    * Generates all possible permutations of a given list of characters.
