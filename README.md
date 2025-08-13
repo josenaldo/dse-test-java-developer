@@ -233,20 +233,20 @@ To prevent this, we can use a series of techniques:
 #### Spring Data query methods.
 
 ```java
-public interface CustomerRepository extends Repository<Customer, String>{
+public interface CustomerRepository extends JpaRepository<Customer, String> {
 
   Customer findByUsername(String username);
 
   Customer findByEmail(String email);
 
-  List<Customer> findByNameLike(String name);
+  List<Customer> findByNameLikeIgnoreCase(String name);
 }
 ```
 
 #### @Query annotations with JPQL/HQL.
 
 ```java
-public interface SalesPersonRepository extends Repository<SalesPerson, String> {
+public interface SalesPersonRepository extends JpaRepository<SalesPerson, String> {
 
   @Query("SELECT s FROM SalesPerson s WHERE s.salary >= :base_salary")
   List<SalesPerson> findBiggerSalaries(@Param("base_salary") BigDecimal baseSalary);
