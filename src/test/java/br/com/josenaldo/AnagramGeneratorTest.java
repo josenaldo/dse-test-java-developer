@@ -2,6 +2,7 @@ package br.com.josenaldo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,46 @@ class AnagramGeneratorTest {
 
     // Act - When
     final var anagramGenerator = new AnagramGenerator();
-    String[] generate = anagramGenerator.generate(letters);
+    String[] generated = anagramGenerator.generate(letters);
 
     // Assert - Then
-    assertThat(generate).containsExactlyInAnyOrder(expected);
+    assertThat(expected).containsExactlyInAnyOrder(generated);
+  }
+
+  @Test
+  void givenASetOfFourCharacters_whenGenerate_thenReturnAnArrayOfAnagrams() {
+    // Arrange - Given
+    final var letters = Set.of('a', 'b', 'c', 'd');
+    final var expected = new String[]{
+        "abcd", "abdc", "acbd", "acdb",
+        "adbc", "adcb", "bacd", "badc",
+        "bcad", "bcda", "bdac", "bdca",
+        "cabd", "cadb", "cbad", "cbda",
+        "cdab", "cdba", "dabc", "dacb",
+        "dbac", "dbca", "dcab", "dcba"
+    };
+
+    // Act - When
+    final var anagramGenerator = new AnagramGenerator();
+    String[] generated = anagramGenerator.generate(letters);
+
+    // Assert - Then
+    assertThat(expected).containsExactlyInAnyOrder(generated);
+  }
+  
+
+  @Test
+  void givenASetOfCharactersWithSingleCharacter_whenGenerate_thenReturnAnArrayOfAnagrams(){
+    // Arrange - Given
+    final Set<Character> letters = Set.of('a');
+    final var expected = List.of("a").toArray(new String[0]);
+
+    // Act - When
+    final var anagramGenerator = new AnagramGenerator();
+    String[] generated = anagramGenerator.generate(letters);
+
+    // Assert - Then
+    assertThat(expected).containsExactlyInAnyOrder(generated);
   }
 
   @Test
@@ -56,7 +93,7 @@ class AnagramGeneratorTest {
   void givenASetOfCharactersWithEmptySpace_whenGenerate_thenThrowAnIllegalArgumentException(){
     // Arrange - Given
     final Set<Character> letters = Set.of(' ');
-    final var expected = new IllegalArgumentException("Set of characters cannot be empty");
+    final var expected = new IllegalArgumentException("Set of characters must contain more than one character");
 
     // Act - When
     final var anagramGenerator = new AnagramGenerator();
@@ -97,18 +134,5 @@ class AnagramGeneratorTest {
     assertThat(actualException).isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test
-  void givenASetOfCharactersWithSingleCharacter_whenGenerate_thenThrowAnIllegalArgumentException(){
-    // Arrange - Given
-    final Set<Character> letters = Set.of('a');
-    final var expected = new IllegalArgumentException("Set of characters must contain more than one character");
 
-    // Act - When
-    final var anagramGenerator = new AnagramGenerator();
-    final var actualException = Assertions.catchIllegalArgumentException(() -> anagramGenerator.generate(letters));
-
-    // Assert - Then
-    assertThat(actualException).hasMessage(expected.getMessage());
-    assertThat(actualException).isInstanceOf(IllegalArgumentException.class);
-  }
 }
