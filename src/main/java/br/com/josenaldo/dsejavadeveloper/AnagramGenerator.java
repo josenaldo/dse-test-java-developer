@@ -1,4 +1,4 @@
-package br.com.josenaldo;
+package br.com.josenaldo.dsejavadeveloper;
 
 import java.util.ArrayList;
 import java.util.List;

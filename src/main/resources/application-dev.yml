@@ -1,0 +1,14 @@
+# Server configuration
+server:
+  port: 8080
+  undertow:
+    threads:
+      io: 2
+      worker: 16
+
+# Database configuration
+database:
+  driver: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://localhost:33065/dsedb
+  user: root
+  password: root

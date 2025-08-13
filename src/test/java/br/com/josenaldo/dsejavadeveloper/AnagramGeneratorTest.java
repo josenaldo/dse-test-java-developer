@@ -1,4 +1,4 @@
-package br.com.josenaldo;
+package br.com.josenaldo.dsejavadeveloper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

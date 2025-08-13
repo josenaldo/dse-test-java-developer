@@ -24,8 +24,8 @@
 
 See the code in the following files:
 
-- [AnagramGenerator.java file](src/main/java/br/com/josenaldo/AnagramGenerator.java)
-- [AnagramGeneratorTest.java file](src/test/java/br/com/josenaldo/AnagramGeneratorTest.java)
+- [AnagramGenerator.java file](src/main/java/br/com/josenaldo/dsejavadeveloper/AnagramGenerator.java)
+- [AnagramGeneratorTest.java file](src/test/java/br/com/josenaldo/dsejavadeveloper/AnagramGeneratorTest.java)
 
 ## Question 2
 
@@ -193,12 +193,133 @@ domain code from the infrastructure and external systems.
 > demonstrating a key feature, such as component communication, data binding, or
 > service integration.
 
+### Answer 4
+
+I don't have any experience with Angular. However, I have used React, Bootstrap, and other frameworks
+to build web applications. Due to this experience, I can say that I have confidence that I can learn 
+Angular quickly.
+
 ## Question 5
 
-Discuss the techniques you use to prevent SQL injection attacks in web applications.
-Provide examples of code showing secure implementations, such as using parameterized
-queries or ORMs. Mention any additional measures you take to secure the database
-layer.
+> Discuss the techniques you use to prevent SQL injection attacks in web applications.
+> Provide examples of code showing secure implementations, such as using parameterized
+> queries or ORMs. Mention any additional measures you take to secure the database
+> layer.
+
+### Answer 5
+
+The problem with SQL injection attacks is that it is possible to inject SQL commands into the
+application. This can be done, for example, by injecting malicious code into the application input.
+
+To prevent this, we can use a series of techniques:
+
+- Use your tools correctly. Let the right layer of abstraction handle the SQL commands (from the 
+ highest to the lowest level of abstraction)
+  - Spring Data query methods.
+  - @Query annotations with JPQL/HQL.
+  - Criteria API.
+  - Native queries over @Query annotations 
+  - Native queries over JDBCTemplate.
+  - Native queries over JDBC directly, using prepared statements and parameterized queries.
+  - Never construct SQL queries by concatenating strings with inputs directly.
+- Always sanitize and validate user input
+  - Use your framework (like Spring MVC) to extract the input data from the request. That way, you 
+    can validate the input data directly in the controller.
+  - In Java, use the @Valid annotation and the Bean Validation API, to validate the input 
+- Give, to your application, the minimum permissions they need to perform their tasks.
+
+### Examples of secure implementations:
+
+#### Spring Data query methods.
+
+```java
+@Repository
+public class CustomerRepository {
+  
+  public Customer findByUsername(String username) {
+    // ...
+  }
+  
+  public List<Customer> findByLastName(String lastName) {
+    // ...
+  }
+  
+  public List<Customer> findByLastNameAndFirstName(String lastName, String firstName) {
+    // ...
+    // ...
+  }
+}
+```
+
+
+#### @Query annotations with JPQL/HQL.
+
+```java
+@Repository
+public class CustomerRepository {
+
+  @Query("SELECT c FROM Customer c WHERE c.username = :username")
+  public Customer findByUsername(@Param("username") String username) {
+    // ...
+  }
+}
+```
+
+#### Criteria API.
+
+```java
+@Repository
+public class UserRepository {
+  public User findByUsername(String username) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();    
+    CriteriaQuery<User> cq = cb.createQuery(User.class);    
+    Root<User> user = cq.from(User.class);    
+    Predicate usernamePredicate = cb.equal(user.get("username"), providedUsername);
+    cq.where(usernamePredicate);
+    
+    TypedQuery<User> query = entityManager.createQuery(cq);
+    List<User> users = query.getResultList();
+    return users.isEmpty() ? null : users.get(0); 
+  }
+}  
+```
+
+#### Native queries over @Query annotations
+
+```java
+@Repository
+public class CustomerRepository {
+  
+  @Query(value = "SELECT * FROM customer WHERE username = :username", nativeQuery = true)
+  public Customer findByUsername(@Param("username") String username) {
+    // ...
+  }
+}
+````
+
+#### Native queries over JDBCTemplate.
+    
+```java
+@Repository
+public class CustomerRepository {
+    
+  private JdbcTemplate jdbcTemplate;
+  
+  public CustomerRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
+  }
+  
+  public Customer findByUsername(String username) {
+    String sql = "SELECT * FROM customer WHERE username = ?";
+    List<Customer> customers = jdbcTemplate.query(sql, new Object[] {username}, new CustomerMapper());
+    return customers.isEmpty() ? null : customers.get(0);
+  }
+}
+```
+
+
+    - Native queries over JDBC directly, using prepared statements and parameterized queries.
+    - Never construct SQL queries by concatenating strings with inputs directly.
 
 ## Question 6
 
@@ -249,7 +370,7 @@ Given the tables above, write the SQL query that:
    ‘*’ in the end of the name.
 3. Deletes all Salesperson that placed orders to the city of Jackson.
 4. The total sales amount for each Salesperson. If the salesperson hasn’t sold anything,
-   show zero.1
+   show zero.
 
 ## Question 8
 

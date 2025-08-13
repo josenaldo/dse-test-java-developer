@@ -1,0 +1,22 @@
+services:
+    db:
+        image: mysql:8.4
+        container_name: dsedb
+        hostname: dsedb
+        volumes:
+            - ./.docker/dbdata:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=dsedb
+        ports:
+            - "33065:3306"
+        networks:
+            - dse
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            interval: 5s
+            timeout: 10s
+            retries: 3
+networks:
+    dse:
+        driver: bridge
