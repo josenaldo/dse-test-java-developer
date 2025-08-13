@@ -21,6 +21,11 @@ server:
             # process multiple requests concurrently.
             worker: 16
 spring:
+    sql:
+      init:
+        schema-locations: classpath:schema.sql
+        data-locations: classpath:data.sql
+        mode: always
     datasource:
         # JDBC driver class name for connecting to the database. Defaults to MySQL driver.
         driver-class-name: ${database.driver:com.mysql.cj.jdbc.Driver}
@@ -53,7 +58,7 @@ spring:
         show-sql: true
         hibernate:
             # Hibernate will not automatically create or update the database schema.
-            ddl-auto: create
+            ddl-auto: none
         properties:
             # Specifies the Hibernate dialect for MySQL to generate compatible SQL syntax.
             "[hibernate-dialect]": org.hibernate.dialect.MySQLDialect
@@ -61,3 +66,4 @@ spring:
             "[hibernate.hibernate.generate_statistics]": true
             # Disables auto-commit in the Hibernate connection provider for controlled transaction management.
             "[hibernate.connection.provider_disables_autocommit]": true
+        defer-datasource-initialization: true
