@@ -33,6 +33,86 @@ Provide an example scenario where overriding the equals() method is necessary in
 Explain the key considerations when implementing this method, such as ensuring it
 aligns with the hashCode() method. Include code examples if possible.
 
+### Answer 2
+
+In Java, the equals() method is used to compare two objects. The default implementation
+of this method compares the references of the objects. If you want to compare the
+contents of the objects, you must override this method.
+
+This can be useful when you want to compare two objects representing an entity (an entity is a class that
+represents a single record and has a unique identifier). In this case, you can compare the ID of the
+entities and consider that two entities are equal if they have the same ID.
+
+```java
+import java.util.Objects;
+
+class Employee {
+
+  private String id;
+  private String name;
+  private String email;
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null || obj.getClass() != getClass()) {
+      return false;
+    }
+    Employee other = (Employee) obj;
+    return Objects.equals(id, other.id);
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+}
+```
+
+Another case where you can override the equals() method is when you want to compare two objects
+that are not entities. For example, when using value objects. A value object is an object that
+represents a value, and it doesn't have an ID. In that case, you can compare each field of the
+value object.
+
+```java
+public class Address {
+
+  private String street;
+  private String city;
+  private String state;
+  private String zipCode;
+
+  public Address(String street, String city, String state, String zipCode) {
+    this.street = street;
+    this.city = city;
+    this.state = state;
+    this.zipCode = zipCode;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Address address = (Address) o;
+    return Objects.equals(street, address.street)
+        && Objects.equals(city, address.city)
+        && Objects.equals(state, address.state)
+        && Objects.equals(zipCode, address.zipCode);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(street, city, state, zipCode);
+  }
+}    
+```
+
+We must consider that the equals() method must be consistent with the hashCode() method, i.e.,
+if two objects are equal, they must have the same hash code.
+
+Additionally, we must ensure that the equals() method must respect the contract of the equals()
+method, i.e., it must be: reflexive, symmetric, transitive, and consistent. 
+
 ## Question 3
 
 Explain how you would use a design pattern to decouple your code from a third-party
