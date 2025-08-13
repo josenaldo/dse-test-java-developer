@@ -20,6 +20,13 @@ Additional Requirements:
    including edge cases (e.g., input with a single letter or empty input).
 5. Document your code clearly, explaining the logic for generating anagrams.
 
+### Answer 1
+
+See the code in the following files:
+
+- [AnagramGenerator.java file](src/main/java/br/com/josenaldo/AnagramGenerator.java)
+- [AnagramGeneratorTest.java file](src/test/java/br/com/josenaldo/AnagramGeneratorTest.java)
+
 ## Question 2
 
 Provide an example scenario where overriding the equals() method is necessary in Java.
