@@ -1,0 +1,10 @@
+# Database configuration
+database:
+    driver: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:${mysql.port}/dsedb
+    user: root
+    password: root
+
+logging:
+    level:
+      ROOT: INFO
