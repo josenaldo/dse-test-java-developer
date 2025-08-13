@@ -69,16 +69,13 @@ public class AnagramGenerator {
       return result;
     }
 
-
-    List<String> subPermutations = null;
-
     for (int i = 0; i < chars.size(); i++) {
       char current = chars.get(i);
       List<Character> remaining = new ArrayList<>(chars.size() - 1);
       remaining.addAll(chars.subList(0, i));
       remaining.addAll(chars.subList(i + 1, chars.size()));
 
-      subPermutations = generatePermutations(remaining);
+      List<String> subPermutations = generatePermutations(remaining);
 
       for (String subPermutation : subPermutations) {
         result.add(current + subPermutation);
