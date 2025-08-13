@@ -57,12 +57,12 @@ class SalesPersonRepositoryTest {
     // Arrange - Given
 
     // Act - When
-    final var customers = salesPersonRepository.findAll();
+    final var result = salesPersonRepository.findAll();
 
     // Assert - Then
-    assertThat(customers).isNotNull();
-    assertThat(customers).isNotEmpty();
-    assertThat(customers).hasSize(5);
+    assertThat(result).isNotNull();
+    assertThat(result).isNotEmpty();
+    assertThat(result).hasSize(5);
   }
 
   @Test
@@ -71,17 +71,17 @@ class SalesPersonRepositoryTest {
     final var expectedBaseSalary = new BigDecimal(100000);
 
     // Act - When
-    final var salesPeople = salesPersonRepository.findBiggerSalaries(expectedBaseSalary);
+    final var result = salesPersonRepository.findBiggerSalaries(expectedBaseSalary);
 
     // Assert - Then
-    assertThat(salesPeople).isNotNull();
-    assertThat(salesPeople).isNotEmpty();
-    assertThat(salesPeople).hasSize(2);
+    assertThat(result).isNotNull();
+    assertThat(result).isNotEmpty();
+    assertThat(result).hasSize(2);
 
-    SalesPerson first = salesPeople.getFirst();
+    SalesPerson first = result.getFirst();
     assertThat("Abe").isEqualTo(first.getName());
 
-    SalesPerson second = salesPeople.getLast();
+    SalesPerson second = result.getLast();
     assertThat("Ken").isEqualTo(second.getName());
   }
 }

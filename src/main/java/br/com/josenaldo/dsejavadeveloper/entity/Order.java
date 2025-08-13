@@ -32,7 +32,7 @@ public class Order {
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "salesperson_id", nullable = false)
+  @JoinColumn(name = "sales_person_id", nullable = false)
   private SalesPerson salesperson;
 
   @NotNull

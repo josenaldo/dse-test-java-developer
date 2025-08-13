@@ -257,20 +257,35 @@ public interface SalesPersonRepository extends JpaRepository<SalesPerson, String
 #### Criteria API.
 
 ```java
-@Repository
-public class UserRepository {
-  public User findByUsername(String username) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();    
-    CriteriaQuery<User> cq = cb.createQuery(User.class);    
-    Root<User> user = cq.from(User.class);    
-    Predicate usernamePredicate = cb.equal(user.get("username"), providedUsername);
-    cq.where(usernamePredicate);
-    
-    TypedQuery<User> query = entityManager.createQuery(cq);
-    List<User> users = query.getResultList();
-    return users.isEmpty() ? null : users.get(0); 
+public interface OrderRepository extends JpaRepository<Order, String>,
+    JpaSpecificationExecutor<Order> {
+
+  static Specification<Order> byCustomerUsername(String username) {
+    return (root, query, cb) -> cb.equal(root.join("customer").get("username"), username);
   }
-}  
+
+  static Specification<Order> bySalesPerson(String salesPersonId) {
+    return (root, query, cb) ->cb.equal(root.join("salesperson").get("id"), salesPersonId);
+  }
+
+  static Specification<Order> bySalesPersonAndCustomerUsername(String salesPersonId, String  username) {
+    Specification<Order> bySalesPerson = bySalesPerson(salesPersonId);
+    Specification<Order> byCustomerUsername = byCustomerUsername(username);
+
+    return (root, query, cb) -> cb.and(bySalesPerson.toPredicate(root, query, cb), byCustomerUsername.toPredicate(root, query, cb));
+  }
+}
+```
+
+```java
+// bySalesPerson
+final var result = orderRepository.findAll(OrderRepository.bySalesPerson(expectedId));
+
+// byCustomerUsername
+final var result = orderRepository.findAll(OrderRepository.byCustomerUsername(expectedUsername));
+
+// bySalesPersonAndCustomerUsername
+final var result = orderRepository.findAll(OrderRepository.bySalesPersonAndCustomerUsername(expectedId, expectedUsername));
 ```
 
 #### Native queries over @Query annotations

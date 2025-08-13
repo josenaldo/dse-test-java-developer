@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import br.com.josenaldo.dsejavadeveloper.annotations.IntegrationTest;
 import br.com.josenaldo.dsejavadeveloper.entity.Customer;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -45,19 +46,23 @@ class CustomerRepositoryTest {
     registry.add("mysql.port", port::toString);
   }
 
+  @BeforeEach
+  void setUp() {
+    assertThat(MY_SQL_CONTAINER.isRunning()).isTrue();
+    assertThat(5).isEqualTo(customerRepository.count());
+  }
+
   @Test
   void givenAValidCustomer_whenListAllCustomers_thenReturnListOfCustomers() {
     // Arrange - Given
-    assertThat(MY_SQL_CONTAINER.isRunning()).isTrue();
-    assertThat(5).isEqualTo(customerRepository.count());
 
     // Act - When
-    final var customers = customerRepository.findAll();
+    final var result = customerRepository.findAll();
 
     // Assert - Then
-    assertThat(customers).isNotNull();
-    assertThat(customers).isNotEmpty();
-    assertThat(customers).hasSize(5);
+    assertThat(result).isNotNull();
+    assertThat(result).isNotEmpty();
+    assertThat(result).hasSize(5);
   }
 
   @Test
@@ -69,11 +74,11 @@ class CustomerRepositoryTest {
     final var expectedUsername = "samony";
 
     // Act - When
-    Customer customer = customerRepository.findByUsername(expectedUsername);
+    Customer result = customerRepository.findByUsername(expectedUsername);
 
     // Assert - Then
-    assertNotNull(customer);
-    assertThat(customer.getUsername()).isEqualTo(expectedUsername);
+    assertNotNull(result);
+    assertThat(result.getUsername()).isEqualTo(expectedUsername);
   }
 
   @Test
@@ -85,14 +90,14 @@ class CustomerRepositoryTest {
     final var expectedNamePart = "Sa%";
 
     // Act - When
-    List<Customer> customers = customerRepository.findByNameLikeIgnoreCase(expectedNamePart);
+    List<Customer> result = customerRepository.findByNameLikeIgnoreCase(expectedNamePart);
 
     // Assert - Then
-    assertNotNull(customers);
-    assertThat(customers).isNotEmpty();
-    assertThat(customers).hasSize(2);
-    assertThat(customers.get(0).getName()).isEqualTo("Samsonic");
-    assertThat(customers.get(1).getName()).isEqualTo("Samony");
+    assertNotNull(result);
+    assertThat(result).isNotEmpty();
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getName()).isEqualTo("Samsonic");
+    assertThat(result.get(1).getName()).isEqualTo("Samony");
   }
 
   @Test
@@ -104,12 +109,12 @@ class CustomerRepositoryTest {
     final var expectedEmail = "hello@samony.example";
 
     // Act - When
-    Customer customer = customerRepository.findByEmail(expectedEmail);
+    Customer result = customerRepository.findByEmail(expectedEmail);
 
     // Assert - Then
-    assertNotNull(customer);
-    assertThat(customer.getEmail()).isEqualTo(expectedEmail);
-    assertThat(customer.getName()).isEqualTo("Samony");
-    assertThat(customer.getUsername()).isEqualTo("samony");
+    assertNotNull(result);
+    assertThat(result.getEmail()).isEqualTo(expectedEmail);
+    assertThat(result.getName()).isEqualTo("Samony");
+    assertThat(result.getUsername()).isEqualTo("samony");
   }
 }
