@@ -119,6 +119,73 @@ Explain how you would use a design pattern to decouple your code from a third-pa
 library that might be replaced in the future. Describe the advantages and limitations of
 your chosen approach, and provide a small code snippet illustrating its application.
 
+### Answer 3
+
+In cases like that, my most used approach is to use the Adapter pattern. This pattern is used
+to decouple the code from the third-party libraries, framework, or other systems. This way,
+we can change the third-party library or framework without affecting the client code.
+
+To implement this pattern, we need to create an abstraction that represents the external component. 
+For example, we can create an interface that defines a Repository (an abstraction for a database), 
+an ApiClient (an abstraction for an API) or a FileReader (an abstraction for a file).
+
+After that, we can create a concrete implementation of the interface that represents the external
+component. For example, we can create a class that implements the Repository interface and uses
+the JDBC API to access the MySQL database.
+
+Finally, we can create a class that uses the Repository interface to access the external component. 
+This class is called the Client. Ideally, this class should be independent of the concrete implementation
+of the Repository interface. I.e., the Client should not know anything about the concrete implementation
+of the Repository interface. We can achieve this by using the Dependency Injection pattern, by using
+the Factory pattern, or by using the Registry pattern.
+
+```java
+public interface Repository {
+
+  void save(Object object);
+
+  void update(Object object);
+
+  void delete(Object object);
+
+  Object findById(String id);
+
+  List<Object> findAll();
+}
+
+public class MysqlRepository implements Repository {
+
+  private Connection connection;
+
+  @Override
+  public void save(Object object) {
+    // specific MySQL implementation
+  }
+  
+  // ...(other methods)
+}
+
+public class ClientService {
+  private Repository repository;
+  
+  // injecting the repository by using the constructor injection
+  public ClientService(Repository repository) {
+    this.repository = repository;
+  }
+  
+  public void save(Object object) {
+    // ... (other code)
+    repository.save(object);
+    // ... (other code)
+  }
+  
+  // ...(other methods)
+}
+```
+
+This approach is commonly used in the Hexagonal Architecture (Ports and Adapters), to decouple the
+domain code from the infrastructure and external systems.
+
 ## Question 4
 
 Describe your experience with Angular, including its core features and use cases. Provide 
