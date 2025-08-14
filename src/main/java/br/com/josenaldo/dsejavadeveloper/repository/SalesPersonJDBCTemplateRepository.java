@@ -27,15 +27,15 @@ public class SalesPersonJDBCTemplateRepository implements SalesPersonRepository 
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
   }
 
+  public long count() {
+    String sql = "SELECT COUNT(*) FROM sales_person";
+    return jdbcTemplate.queryForObject(sql, Long.class);
+  }
+
   public List<SalesPerson> findAll() {
     String sql = "SELECT * FROM sales_person";
 
     return jdbcTemplate.query(sql, new SalesPersonRowMapper());
-  }
-
-  public Integer count() {
-    String sql = "SELECT COUNT(*) FROM sales_person";
-    return jdbcTemplate.queryForObject(sql, Integer.class);
   }
 
   @Override

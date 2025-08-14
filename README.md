@@ -373,9 +373,119 @@ class SalesPersonRowMapper implements RowMapper<SalesPerson> {
 }
 ```
 
+#### Native queries over JDBC directly, using prepared statements and parameterized queries.
 
-    - Native queries over JDBC directly, using prepared statements and parameterized queries.
-    - Never construct SQL queries by concatenating strings with inputs directly.
+We can use Spring JdbcClient to execute queries. W can also use JDBC connection Statement and 
+PreparedStatement to execute queries.
+
+```java
+@Repository
+public class SalesPersonJDBCRepository implements SalesPersonRepository {
+
+  private DataSource dataSource;
+  private JdbcClient jdbcClient;
+
+  public SalesPersonJDBCRepository(DataSource dataSource) {
+    this.dataSource = dataSource;
+    this.jdbcClient = JdbcClient.create(dataSource);
+  }
+
+  @Override
+  public long count() {
+    final var sql = "SELECT COUNT(*) FROM sales_person";
+    return this.jdbcClient.sql(sql).query(Long.class).single();
+  }
+
+  @Override
+  public List<SalesPerson> findAll() {
+    String sql = "SELECT * FROM sales_person";
+    try (
+        Connection connection = dataSource.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql)
+    ) {
+      List<SalesPerson> results = new ArrayList<>();
+
+      while (resultSet.next()) {
+        results.add(mapResultSetToSalesPerson(resultSet));
+      }
+      return results;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
+  @Override
+  public List<SalesPerson> findBiggerSalaries(BigDecimal baseSalary) {
+    String sql = """
+          SELECT s.id, s.name, s.age, s.salary
+          FROM sales_person s
+          WHERE s.salary > ?
+        """;
+
+    try (
+        Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql)
+    ) {
+      preparedStatement.setBigDecimal(1, baseSalary);
+
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      List<SalesPerson> results = new ArrayList<>();
+
+      while (resultSet.next()) {
+        results.add(mapResultSetToSalesPerson(resultSet));
+      }
+      return results;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public List<SalesPerson> findOlderThan60() {
+    String sql = """
+          SELECT s.id, s.name, s.age, s.salary
+          FROM sales_person s
+          WHERE s.age > 60
+        """;
+
+    try (
+        Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql)
+    ) {
+
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      List<SalesPerson> results = new ArrayList<>();
+
+      while (resultSet.next()) {
+        results.add(mapResultSetToSalesPerson(resultSet));
+      }
+      return results;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static SalesPerson mapResultSetToSalesPerson(ResultSet resultSet) throws SQLException {
+    String id = resultSet.getString("id");
+    String name = resultSet.getString("name");
+    Short age = resultSet.getShort("age");
+    BigDecimal salary = resultSet.getBigDecimal("salary");
+    SalesPerson e = new SalesPerson(id, name, age, salary);
+    return e;
+  }
+}
+```
+
+The lower you go in the abstraction stack, the greater the control — but also the greater the risk 
+of introducing an error that causes SQL injection.
+
+#### Construct SQL queries by concatenating strings
+   
+- **NEVER** construct SQL queries by concatenating strings with inputs directly. 
 
 ## Question 6
 

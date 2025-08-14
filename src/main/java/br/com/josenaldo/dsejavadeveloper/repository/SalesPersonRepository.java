@@ -6,6 +6,10 @@ import java.util.List;
 
 public interface SalesPersonRepository {
 
+  public long count();
+
+  List<SalesPerson> findAll();
+
   List<SalesPerson> findBiggerSalaries(BigDecimal baseSalary);
 
   List<SalesPerson> findOlderThan60();
