@@ -291,13 +291,12 @@ final var result = orderRepository.findAll(OrderRepository.bySalesPersonAndCusto
 #### Native queries over @Query annotations
 
 ```java
-@Repository
-public class CustomerRepository {
-  
-  @Query(value = "SELECT * FROM customer WHERE username = :username", nativeQuery = true)
-  public Customer findByUsername(@Param("username") String username) {
-    // ...
-  }
+public interface SalesPersonRepository extends JpaRepository<SalesPerson, String> {
+  // ...
+  // other methods
+  // ...
+  @Query( value = "SELECT * FROM sales_person s WHERE s.age > 60", nativeQuery = true)
+  List<SalesPerson> findOlderThan60();
 }
 ````
 
@@ -305,18 +304,71 @@ public class CustomerRepository {
     
 ```java
 @Repository
-public class CustomerRepository {
-    
-  private JdbcTemplate jdbcTemplate;
-  
-  public CustomerRepository(JdbcTemplate jdbcTemplate) {
+public class SalesPersonJDBCTemplateRepository implements SalesPersonRepository {
+
+  private final JdbcTemplate jdbcTemplate;
+
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+  public SalesPersonJDBCTemplateRepository(
+      JdbcTemplate jdbcTemplate,
+      NamedParameterJdbcTemplate namedParameterJdbcTemplate
+  ) {
     this.jdbcTemplate = jdbcTemplate;
+    this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
   }
-  
-  public Customer findByUsername(String username) {
-    String sql = "SELECT * FROM customer WHERE username = ?";
-    List<Customer> customers = jdbcTemplate.query(sql, new Object[] {username}, new CustomerMapper());
-    return customers.isEmpty() ? null : customers.get(0);
+
+  public List<SalesPerson> findAll() {
+    String sql = "SELECT * FROM sales_person";
+
+    return jdbcTemplate.query(sql, new SalesPersonRowMapper());
+  }
+
+  public Integer count() {
+    String sql = "SELECT COUNT(*) FROM sales_person";
+    return jdbcTemplate.queryForObject(sql, Integer.class);
+  }
+
+  @Override
+  public List<SalesPerson> findBiggerSalaries(BigDecimal baseSalary) {
+    SqlParameterSource namedParameters = new MapSqlParameterSource().addValue(
+        "baseSalary",
+        baseSalary
+    );
+
+    String sql = """
+          SELECT s.id, s.name, s.age, s.salary
+          FROM sales_person s
+          WHERE s.salary > :baseSalary
+        """;
+
+    return this.namedParameterJdbcTemplate.query(
+        sql,
+        namedParameters,
+        new SalesPersonRowMapper()
+    );
+  }
+
+  @Override
+  public List<SalesPerson> findOlderThan60() {
+    String sql = "SELECT * FROM sales_person s WHERE s.age > 60";
+
+    return jdbcTemplate.query(sql, new SalesPersonRowMapper());
+  }
+}
+
+class SalesPersonRowMapper implements RowMapper<SalesPerson> {
+
+  @Override
+  public SalesPerson mapRow(ResultSet rs, int rowNum) throws SQLException {
+    SalesPerson salesPerson = new SalesPerson();
+
+    salesPerson.setId(rs.getString("id"));
+    salesPerson.setName(rs.getString("name"));
+    salesPerson.setAge(rs.getShort("age"));
+    salesPerson.setSalary(rs.getBigDecimal("salary"));
+
+    return salesPerson;
   }
 }
 ```

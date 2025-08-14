@@ -1,7 +1,6 @@
 package br.com.josenaldo.dsejavadeveloper.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import br.com.josenaldo.dsejavadeveloper.annotations.IntegrationTest;
 import br.com.josenaldo.dsejavadeveloper.entity.SalesPerson;
@@ -17,10 +16,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @IntegrationTest
 @Testcontainers
-class SalesPersonRepositoryTest {
+class SalesPersonJPARepositoryTest {
 
   @Autowired
-  private SalesPersonRepository salesPersonRepository;
+  private SalesPersonJPARepository salesPersonJPARepository;
 
   @Container
   private static final MySQLContainer MY_SQL_CONTAINER =
@@ -49,7 +48,7 @@ class SalesPersonRepositoryTest {
   @BeforeEach
   void setUp() {
     assertThat(MY_SQL_CONTAINER.isRunning()).isTrue();
-    assertThat(5).isEqualTo(salesPersonRepository.count());
+    assertThat(5).isEqualTo(salesPersonJPARepository.count());
   }
 
   @Test
@@ -57,7 +56,7 @@ class SalesPersonRepositoryTest {
     // Arrange - Given
 
     // Act - When
-    final var result = salesPersonRepository.findAll();
+    final var result = salesPersonJPARepository.findAll();
 
     // Assert - Then
     assertThat(result).isNotNull();
@@ -71,7 +70,7 @@ class SalesPersonRepositoryTest {
     final var expectedBaseSalary = new BigDecimal(100000);
 
     // Act - When
-    final var result = salesPersonRepository.findBiggerSalaries(expectedBaseSalary);
+    final var result = salesPersonJPARepository.findBiggerSalaries(expectedBaseSalary);
 
     // Assert - Then
     assertThat(result).isNotNull();
@@ -83,5 +82,21 @@ class SalesPersonRepositoryTest {
 
     SalesPerson second = result.getLast();
     assertThat("Ken").isEqualTo(second.getName());
+  }
+
+  @Test
+  void givenSalesPersonList_whenFindOlderThan60_thenShouldReturnOneSalesPerson(){
+    // Arrange - Given
+
+    // Act - When
+    final var result = salesPersonJPARepository.findOlderThan60();
+
+    // Assert - Then
+    assertThat(result).isNotNull();
+    assertThat(result).isNotEmpty();
+    assertThat(result).hasSize(1);
+
+    SalesPerson first = result.getFirst();
+    assertThat("Abe").isEqualTo(first.getName());
   }
 }

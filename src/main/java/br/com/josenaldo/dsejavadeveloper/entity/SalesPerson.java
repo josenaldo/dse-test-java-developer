@@ -12,6 +12,16 @@ import java.math.BigDecimal;
 @Table(name = "sales_person")
 public class SalesPerson {
 
+  public SalesPerson() {
+  }
+
+  public SalesPerson(String id, String name, Short age, BigDecimal salary) {
+    this.id = id;
+    this.name = name;
+    this.age = age;
+    this.salary = salary;
+  }
+
   @Id
   @Size(max = 36)
   @Column(name = "id", nullable = false, length = 36)
