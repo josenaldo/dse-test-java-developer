@@ -489,11 +489,92 @@ of introducing an error that causes SQL injection.
 
 ## Question 6
 
-Describe the steps you would take to diagnose and improve the performance of a batch
-process that interacts with a database and an FTP server. Explain how you would identify
-bottlenecks, optimize database queries, improve logic execution, and enhance file
-transfer efficiency. Provide examples of tools or techniques you would use during the
-analysis.
+> Describe the steps you would take to diagnose and improve the performance of a batch
+> process that interacts with a database and an FTP server. Explain how you would identify
+> bottlenecks, optimize database queries, improve logic execution, and enhance file
+> transfer efficiency. Provide examples of tools or techniques you would use during the
+> analysis.
+
+### Answer 6
+
+In this case, my approach is to use the following steps, iteratively: 
+
+Measure -> Identify -> Improve -> Validate.
+
+#### Step 1: Measure
+
+Without numbers, we are only guessing. We can use the following tools to measure the performance
+of each big step:
+
+- **Instrumentalization**: 
+  - Use Micrometer and Spring Boot Actuator to measure the performance of the batch process. Add 
+  @Timed annotation to the macro-steps that we want to measure like readFromFTP(), processBatch(), 
+  and writeToDatabase().
+- **Define a SLA/Objective**: 
+  - Together with the business/product team, I would define a objective for the process. For 
+  example, process 10000 in 5 minutes, using at most 2GB of memory.
+- **Define a baseline**: 
+  - I would execute the process in a controlled environment and would collect metrics using 
+  Grafana/Prometheus. With this information, I would define a baseline for the process. 
+
+#### Step 2: Identify Bottlenecks
+
+Now, I can identify the bottlenecks in the process.
+
+If the bottleneck is in the database, I can use the following tools to identify the bottleneck:
+
+- Activate the Hibernate logging (show_sql=true, format_sql=true, use_sql_comments=true).
+- Analyze the database queries with Query Plan Viewer and search for:
+  - queries with full table scans
+  - inefficient nested loops,
+  - places for indexes,
+  - queries with large result sets,
+  - groups of inserts (candidate for batch processing),
+  - and other issues.
+
+If the bottleneck is in the logic of the batch, I can use the following tools to identify the bottleneck:
+
+- Use a profiler, like JProfiler or VisualVM, to identify the bottlenecks.
+  - Check if large datasets are being loaded entirely into memory instead of streamed in chunks.
+- If possible, I would use parallel processing to speed up the process.
+
+If the bottleneck is in the FTP server, I can use the following tools to identify the bottleneck:
+
+- Use tools like Wireshark to identify the bottlenecks in the network flow.
+  - Determine if delays are due to protocol limitations, small buffer sizes, or sequential transfers.
+  - I would explore buffer configuration options
+  - I would explore, if possible, file compression options.
+
+#### Step 3: Improve and Refactor
+
+Now, I can improve the performance of the batch process, database access and network flow by 
+implementing the specific changes, based on the identified bottlenecks.
+
+Example:
+
+- Database Optimization
+  - Add indexes and optimize queries to reduce full table scans.
+  - Batch inserts/updates to reduce round-trips.
+  - Use caching (e.g., Redis) for frequently accessed data.
+  - Consider table partitioning if working with huge datasets. 
+- Batch Logic Improvements
+  - Implement parallel processing for independent tasks using a controlled thread pool.
+  - Use chunk processing with frameworks like Spring Batch to reduce memory footprint.
+  - Apply lazy loading and streaming to handle large datasets efficiently.
+- File Transfer Efficiency
+  - Enable compression before transfer to reduce bandwidth usage.
+  - Increase buffer sizes for throughput gains.
+  - Use parallel transfers for multiple files.
+  - Consider switching from FTP to SFTP, HTTP-based APIs, or gRPC, if the protocol itself is a bottleneck. 
+  - Implement checksum verification to avoid retransferring unchanged files. 
+- Error Handling & Recovery
+  - Implement retry policies with exponential backoff.
+  - Log and monitor failed operations for proactive resolution.
+
+#### Step 4: Validate
+
+Measure the performance of the process again. If the performance is still not good enough, I would
+repeat the process.
 
 ## Question 7
 
