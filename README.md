@@ -474,8 +474,7 @@ public class SalesPersonJDBCRepository implements SalesPersonRepository {
     String name = resultSet.getString("name");
     Short age = resultSet.getShort("age");
     BigDecimal salary = resultSet.getBigDecimal("salary");
-    SalesPerson e = new SalesPerson(id, name, age, salary);
-    return e;
+    return new SalesPerson(id, name, age, salary);
   }
 }
 ```
@@ -649,9 +648,34 @@ SET s.name = CONCAT(s.name, '*');
 
 3. Deletes all Salesperson that placed orders to the city of Jackson.
 
+```sql
+DELETE
+	s
+FROM 
+	sales_person AS s 
+	JOIN orders AS o ON o.sales_person_id = s.id 
+	JOIN customers AS c ON c.id = o.customer_id
+WHERE 
+	c.city = 'Jackson';
+```
+
 4. The total sales amount for each Salesperson. If the salesperson hasn’t sold anything,
      show zero.
- 
+
+```sql
+SELECT
+    s.id,
+    s.name,
+    COALESCE(SUM(o.amount), 0) AS total_sales
+FROM
+    sales_person AS s
+    LEFT JOIN orders AS o ON o.sales_person_id = s.id
+GROUP BY
+    s.id, s.name
+ORDER BY
+    s.name;
+``` 
+
 ## Question 8
 
 The customer has a system called XYZ and intends to start updates split into 3 phases. The 
