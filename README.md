@@ -578,47 +578,80 @@ repeat the process.
 
 ## Question 7
 
-Salesperson
-
-| ID | Name  | Age | Salary |
-|----|-------|-----|--------|
-| 1  | Abe   | 61  | 140000 |
-| 2  | Bob   | 34  | 44000  |
-| 5  | Chris | 34  | 40000  |
-| 7  | Dan   | 41  | 52000  |
-| 8  | Ken   | 57  | 115000 |
-| 11 | Joe   | 38  | 38000  |
-
-Customer
-
-| ID | Name     | City     | Industry Type |
-|----|----------|----------|---------------|
-| 4  | Samsonic | Pleasant | J             |
-| 6  | Panasung | Oaktown  | J             |
-| 7  | Samony   | Jackson  | B             |
-| 9  | Orange   | Jackson  | B             |
-
-Orders
-
-| ID | order_date | customer_id | salesperson_id | Amount |
-|----|------------|-------------|----------------|--------|
-| 10 | 8/2/96     | 4           | 2              | 540    |
-| 20 | 1/30/99    | 4           | 8              | 1800   |
-| 30 | 7/14/95    | 9           | 1              | 460    |
-| 40 | 1/29/98    | 7           | 2              | 2400   |
-| 50 | 2/3/98     | 6           | 7              | 600    |
-| 60 | 3/2/98     | 6           | 7              | 720    |
-| 70 | 5/6/98     | 9           | 7              | 150    |
-
-Given the tables above, write the SQL query that:
-
-1. Returns the names of all Salesperson that don’t have any order with Samsonic.
-2. Updates the names of Salesperson that have 2 or more orders. It’s necessary to add an
+> Salesperson
+> 
+> | ID | Name  | Age | Salary |
+> |----|-------|-----|--------| 
+> | 1  | Abe   | 61  | 140000 | 
+> | 2  | Bob   | 34  | 44000  | 
+> | 5  | Chris | 34  | 40000  |
+> | 7  | Dan   | 41  | 52000  |
+> | 8  | Ken   | 57  | 115000 |
+> | 11 | Joe   | 38  | 38000  |
+>
+> Customer
+> 
+>  | ID | Name     | City     | Industry Type |
+>  |----|----------|----------|---------------|
+>  | 4  | Samsonic | Pleasant | J             |
+>  | 6  | Panasung | Oaktown  | J             |
+>  | 7  | Samony   | Jackson  | B             |
+>  | 9  | Orange   | Jackson  | B             |
+>  
+>  Orders
+>  
+>  | ID | order_date | customer_id | salesperson_id | Amount |
+>  |----|------------|-------------|----------------|--------|
+>  | 10 | 8/2/96     | 4           | 2              | 540    |
+>  | 20 | 1/30/99    | 4           | 8              | 1800   |
+>  | 30 | 7/14/95    | 9           | 1              | 460    |
+>  | 40 | 1/29/98    | 7           | 2              | 2400   |
+>  | 50 | 2/3/98     | 6           | 7              | 600    |
+>  | 60 | 3/2/98     | 6           | 7              | 720    |
+>  | 70 | 5/6/98     | 9           | 7              | 150    |
+>
+> Given the tables above, write the SQL query that:
+> 
+> 1. Returns the names of all Salesperson that don’t have any order with Samsonic.
+> 2. Updates the names of Salesperson that have 2 or more orders. It’s necessary to add an
    ‘*’ in the end of the name.
-3. Deletes all Salesperson that placed orders to the city of Jackson.
-4. The total sales amount for each Salesperson. If the salesperson hasn’t sold anything,
+> 3. Deletes all Salesperson that placed orders to the city of Jackson.
+> 4. The total sales amount for each Salesperson. If the salesperson hasn’t sold anything,
    show zero.
 
+### Answer 7
+
+1. Returns the names of all Salesperson that don’t have any order with Samsonic.
+
+```sql
+SELECT DISTINCT  (s.name)
+FROM
+    sales_person s
+    LEFT JOIN orders o ON s.id = o.sales_person_id
+    LEFT JOIN customers c ON o.customer_id = c.id
+WHERE
+    c.name != 'Samsonic'
+```
+
+2. Updates the names of Salesperson that have 2 or more orders. It’s necessary to add an
+   ‘*’ in the end of the name.
+
+```sql
+UPDATE sales_person AS s
+    JOIN (
+        SELECT o.sales_person_id AS id
+        FROM orders AS o
+        GROUP BY o.sales_person_id
+        HAVING COUNT(o.id) >= 2
+    ) AS elig ON elig.id = s.id
+SET s.name = CONCAT(s.name, '*');
+```
+
+3. Deletes all Salesperson that placed orders to the city of Jackson.
+
+4. The total sales amount for each Salesperson. If the salesperson hasn’t sold anything,
+     show zero.
+ 
 ## Question 8
 
 The customer has a system called XYZ and intends to start updates split into 3 phases. The 
